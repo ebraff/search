@@ -334,7 +334,7 @@ void *SLNextItem(SortedListIteratorPtr iter)
 		return iter;
 }
 
-unsigned long hash(char* word, int tbSize){
+unsigned long hash(char* word, long tbSize){ /*------returns hash index*/
 	
 	unsigned long hash = 5381;
 	int i;
@@ -404,4 +404,36 @@ int DestroyTable(SortedListPtr* table, long tl){
 
 }
 
+NodePtr getNode(SortedListPtr* table, char* word, long tl){
+	unsigned long pos;
+	NodePtr found;
+	SortedListIteratorPtr it;
+	int compare;
+	
+	/*get table number*/
+	pos = hash(word, tl);
+	it = SLCreateIterator(table[pos]);
+	
+	if(it == NULL || it->prev == NULL)
+	{
+		SLDestroyIterator(it);
+		return NULL;
+	}
+	/*get next in table[i]*/
+	
+	while(it->curr != NULL)
+	{
+		compare = (table[pos]->funct)(word, it->curr->object);
+		if (compare == 0)
+		{
+			found = it->curr;
+			SLDestroyIterator(it);
+			return found;
+		}
+		it = SLNextItem(it);
+	}
+	SLDestroyIterator(it);
+	return NULL;
+	
+ }
  
