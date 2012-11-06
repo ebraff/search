@@ -56,5 +56,6 @@ int ReInsert(SortedListPtr list, NodePtr newObj);
 int DestroyTable(SortedListPtr* table, long tl);
 
 void loadTable(SortedListPtr* table, FILE* input, long tl);
+NodePtr getNode(SortedListPtr* table, char* word, long tl);
 
 #endif
