@@ -11,7 +11,7 @@
 int compareWords(void* word1, void * word2);
 int compareFiles(void* word1, void * word2);
 /*int compareOcc(void* num1, void* num2);*/
-SortedListPtr sand(SortedListPtr* table, char **words);
+SortedListPtr sand(SortedListPtr* table, long tl);
 SortedListPtr sor(SortedListPtr* table, char **words);
 
 
