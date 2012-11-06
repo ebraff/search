@@ -43,6 +43,10 @@ int compareFiles(void* word1, void * word2)
 
 int main(int argc, char **argv)
 {
+	if (argc < 2){
+		printf("Invalid number of arguments! Please enter a file name to read.");
+		return -1;
+		}
 	FILE* input = fopen(argv[1],"r");
 	long tableLen;
 	
