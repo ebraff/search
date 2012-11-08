@@ -42,19 +42,33 @@ int compareFiles(void* word1, void * word2)
 }
 
 /*sa -- AND function for search*/
+
 SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 {
-	//SortedListPtr final;
-	
-	
-	
+	/*SortedListPtr final;*/
+	char *currentWord;
+	NodePtr currentNode;
+	currentWord = NULL;
+	while (scanf("%s", currentWord) != EOF)
+	{
+		printf("%s\n", currentWord);
+		currentNode = getNode(table, currentWord, tl);
+		if (currentNode != NULL)
+		{
+			printf("%s\n", (char*)(currentNode->object));
+		}
+		else
+		{
+			printf("Cannot find word: %s.\n", currentWord);
+		}
+	}
 	return NULL;
 }
 
 /*so -- OR function for search*/
 SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 {
-	//SortedListPtr final;
+	/*SortedListPtr final;*/
 	
 	return NULL;
 }
@@ -71,7 +85,7 @@ int main(int argc, char **argv)
 	char * searchType, *searchWords;
 	searchType = (char*)malloc(10);
 	searchWords = NULL;
-	//NodePtr testNode;
+	/*NodePtr testNode;*/
 	
 	tableLen = 797;
 	
@@ -83,7 +97,9 @@ int main(int argc, char **argv)
 	
 	loadTable(wordTable, input, tableLen);
 	
-	/*---- SEARCH MENU */
+
+	/*-----SEARCH MENU-----*/
+	/*searchType = (char*)malloc(4);*/
 	printf("search> ");
 	scanf("%s", searchType);
 	while(strcmp(searchType, "q") != 0)
@@ -103,6 +119,7 @@ int main(int argc, char **argv)
 		}
 		printf("search> ");
 		scanf("%s", searchType);
+
 	}
 
 	if(searchWords){
