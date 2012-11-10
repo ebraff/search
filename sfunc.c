@@ -177,13 +177,13 @@ int SLRemove(SortedListPtr list, void *newObj)
 	}
 	while(it->curr != NULL){ /*---------------------loop to move iterator*/
 		compare = (*list->funct)(newObj, it->curr->object);		
-		if(compare >0) /*---------------------------if the iterator is less than the new object, insert it*/
+		if(compare <0) /*---------------------------if the iterator is less than the new object, insert it*/
 		{
 			printf("Could not find object in list.\n");
 			SLDestroyIterator(it);
 			return 1;
 		}
-		else if(compare < 0) /*---------------------if the iterator is greater than the new object, move the iterator to the next node(s)*/
+		else if(compare > 0) /*---------------------if the iterator is greater than the new object, move the iterator to the next node(s)*/
 		{
 			it = SLNextItem(it);
 		}
@@ -351,9 +351,15 @@ NodePtr getNode(SortedListPtr* table, char* word, long tl){
 	
 	/*get table number*/
 	pos = hash(word, tl);
-	it = SLCreateIterator(table[pos]);
-	
-	if(it == NULL || it->prev == NULL)
+	if(table[pos])
+	{
+		it = SLCreateIterator(table[pos]);
+	}
+	if(it == NULL)
+	{
+		return NULL;
+	}
+	if(it->prev == NULL)
 	{
 		SLDestroyIterator(it);
 		return NULL;
