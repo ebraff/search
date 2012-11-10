@@ -136,7 +136,8 @@ int main(int argc, char **argv)
 		fprintf(stderr,"Malloc Fail");
 		return -1;
 	}
-	loadTable(wordTable, input, tableLen);	
+
+	loadTable(wordTable, input, tableLen);
 
 	/*-----SEARCH MENU-----*/
 	printf("search> ");
@@ -155,7 +156,6 @@ int main(int argc, char **argv)
 			}
 			SLDestroyIterator(it);
 			SLDestroy(answer);
-			
 		}
 		else if (strcmp(searchType, "so") == 0)
 		{
@@ -167,8 +167,8 @@ int main(int argc, char **argv)
 		}
 		printf("search> ");
 		scanf("%s", searchType);
-	}
 
+	}
 	if(searchWords)
 	{
 		free(searchWords);
@@ -179,8 +179,7 @@ int main(int argc, char **argv)
 	}*/
 	DestroyTable(wordTable,tableLen);
 	free(searchType);
-	fclose(input);
-	
+	fclose(input);	
 	return 0;
 }
 
