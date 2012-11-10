@@ -39,15 +39,15 @@ SortedListPtr SLCreate(CompareFuncT cf)
  */
 void SLDestroy(SortedListPtr list)
 {
-	/*FREE FILENPTR?*/
-
 	NodePtr temp;
 	temp = list->head;
 	/*free everything!!!*/
 	while(temp != NULL)
 	{
 		temp = temp->next;
-		SLDestroy(list->head->fileList);
+		if(list->head->fileList){
+			SLDestroy(list->head->fileList);
+		}
 		free(list->head->object);
 		free(list->head);
 		list->head = temp;
@@ -88,7 +88,6 @@ NodePtr SLInsert(SortedListPtr list, void *newObj)
 	int compare;
 	NodePtr newo;
 	SortedListIteratorPtr it;
-	SortedListPtr flist;
 
 	newo = NULL;
 
@@ -100,8 +99,6 @@ NodePtr SLInsert(SortedListPtr list, void *newObj)
 	if (it->prev == NULL || (*list->funct)(newObj, it->curr->object) < 0) /*if the iterator's previous is NULL or if the new object is greater than the iterator*/
 	{
 		newo = NodeCreate(newObj,it->curr);
-		newo->fileList=SLCreate(compareFiles);
-		//FileInsert(flist, filename); /*--------------------insert or increment filenode*/		
 		newo->next = it->curr;
 		list->head = newo;
 		SLDestroyIterator(it);
@@ -127,68 +124,8 @@ NodePtr SLInsert(SortedListPtr list, void *newObj)
 	}
 	newo=NodeCreate(newObj,it->curr);
 	it->prev->next =  newo;/*-----------------------smallest; put the new node on the end*/
-	newo->fileList=SLCreate(compareFiles);
 	SLDestroyIterator(it);
 	return newo;
-}
-
-
-int FileInsert(SortedListPtr list, void *newObj)
-{
-	/*go through entire list until you find the file name or the end of 
-	 * the list is reached (list is not necessarily in alphabetical order)
-	 * if the end of the list is reached, increment the counter and insert at end*/
-	SortedListIteratorPtr it;
-
-	it = SLCreateIterator(list);
-	if (it == NULL){
-		SLDestroyIterator(it);
-		return 0;
-	}
-
-	list->head= NodeCreate(newObj,it->curr); /*------------insert file at head*/
-	SLDestroyIterator(it);
-	return 1;
-}
-
-
-int ReInsert(SortedListPtr list, NodePtr newObj)
-{
-	int compare;
-	NodePtr newo;
-	SortedListIteratorPtr it;
-
-	//list->funct = compareOcc;
-	it = SLCreateIterator(list);
-	if (it == NULL){
-		SLDestroyIterator(it);
-		return 0;
-	}
-	if (it->prev == NULL || (newObj->count)-(it->curr->count) >= 0) /*--- (n1-n2) , insert DESENDING*/
-	{
-		//newo = NodeCreate(newObj,it->curr);
-		//newo->next = it->curr;
-		newObj->next = list->head;
-		list->head = newObj;
-		SLDestroyIterator(it);
-		return 1;
-	}
-
-	while(it->curr != NULL){ 
-		compare = (newObj->count)-(it->curr->count);
-		if(compare >=0)
-		{
-			break;
-		}
-		else
-		{
-			it = SLNextItem(it);
-		}
-	}
-	it->prev->next = newObj;
-	newObj->next = it->curr;
-	SLDestroyIterator(it);
-	return 1;
 }
 
 
@@ -207,17 +144,17 @@ int SLRemove(SortedListPtr list, void *newObj)
 	SortedListIteratorPtr it;
 
 	it = SLCreateIterator(list);
+	compare = (*list->funct)(newObj, it->curr->object);
 	if (it == NULL){
 		SLDestroyIterator(it);
 		return 0;
 	}
 
-	if (it->prev == NULL) /*------------------------if the iterator's previous is NULL, don't do anything*/
+	if (it->prev == NULL || compare < 0) /*------------------------if the iterator's previous is NULL, don't do anything*/
 	{
 		SLDestroyIterator(it);
 		return 1;
 	}
-	compare = (*list->funct)(newObj, it->curr->object);	
 	if(compare == 0) /*-----------------------------if the first node in the list is the target*/
 	{
 		if(it->curr->next == NULL) /*---------------if that node was the only one in the list*/
@@ -238,13 +175,13 @@ int SLRemove(SortedListPtr list, void *newObj)
 	}
 	while(it->curr != NULL){ /*---------------------loop to move iterator*/
 		compare = (*list->funct)(newObj, it->curr->object);		
-		if(compare >0) /*---------------------------if the iterator is less than the new object, insert it*/
+		if(compare <0) /*---------------------------if the new object is less than the iterator, insert it*/
 		{
 			printf("Could not find object in list.\n");
 			SLDestroyIterator(it);
 			return 1;
 		}
-		else if(compare < 0) /*---------------------if the iterator is greater than the new object, move the iterator to the next node(s)*/
+		else if(compare > 0) /*---------------------if the iterator is less than the new object, move the iterator to the next node(s)*/
 		{
 			it = SLNextItem(it);
 		}
@@ -262,7 +199,7 @@ int SLRemove(SortedListPtr list, void *newObj)
 		}
 	}
 	if (it->curr != NULL){
-		it->prev->next = it->curr->next; /*---------delete the smallest*/
+		it->prev->next = it->curr->next; /*---------delete the largest*/
 		free(it->curr->object);
 		free(it->curr);
 	}
@@ -334,7 +271,8 @@ void *SLNextItem(SortedListIteratorPtr iter)
 		return iter;
 }
 
-unsigned long hash(char* word, long tbSize){ /*------returns hash index*/
+
+unsigned long hash(char* word, long tl){ /*------returns hash index*/
 	
 	unsigned long hash = 5381;
 	int i;
@@ -343,7 +281,7 @@ unsigned long hash(char* word, long tbSize){ /*------returns hash index*/
 		hash = ((hash << 5)+hash+ word[i]); /*------ hash * 33 + word[i] */
 	}
 	
-	return hash % tbSize;
+	return hash % tl;
 	
 }
 
@@ -353,8 +291,7 @@ void loadTable(SortedListPtr* table, FILE* input, long tl){
 	size_t len = 0;
 	char * end, *word, *file, *line;
 	end= word = file= line =NULL;
-	SortedListPtr wordList;
-	NodePtr currWord;
+	NodePtr currWord,currFile;
 	
 	for(i=0; i<tl;i++){
 		table[i]=NULL;
@@ -365,20 +302,22 @@ void loadTable(SortedListPtr* table, FILE* input, long tl){
 	while(ret!=-1){
 		word = strndup(line+7,ret-8);  /*---- get word */
 
-		//insert word node
+		/*insert word node*/
 		index = hash(word, tl);			/*----- get hash index */
 
 		if(table[index] == NULL){
 			table[index] = SLCreate(compareWords);
 		}
 		currWord=SLInsert(table[index], (void*)word);
+		currWord->fileList=SLCreate(compareWords);
 		ret = getline(&line, &len, input);
 		
 		while(line[0]!='<'){
 			end = strrchr(line, ' ');
 			file = strndup(line,ret-strlen(end)+1);
-			//insert file node
-			SLInsert(currWord->fileList, (void*)file);
+			/*insert file node*/
+			currFile=SLInsert(currWord->fileList, (void*)file);
+			currFile->fileList=NULL;
 			ret = getline(&line, &len, input);
 		}
 		ret = getline(&line, &len, input);
@@ -399,10 +338,8 @@ int DestroyTable(SortedListPtr* table, long tl){
 	free(table);
 
 	return 1;
-	
-
-
 }
+
 
 NodePtr getNode(SortedListPtr* table, char* word, long tl){
 	unsigned long pos;
