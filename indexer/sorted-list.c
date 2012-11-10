@@ -41,25 +41,21 @@ SortedListPtr SLCreate(CompareFuncT cf)
  */
 void SLDestroy(SortedListPtr list)
 {
-	/*FREE FILENPTR?*/
-
 	NodePtr temp;
 	temp = list->head;
 	/*free everything!!!*/
-	if(temp == NULL)
-	{
-		return;
-	}
-	while(temp->next != NULL)
+	while(temp != NULL)
 	{
 		temp = temp->next;
+		if(list->head->fileList){
+			SLDestroy(list->head->fileList);
+		}
 		free(list->head->object);
 		free(list->head);
 		list->head = temp;
 	}
-	free(list->head->object);
-	free(list->head);
 	free(list);
+
 }
 
 /*Added on to initialize struct Node given the object and 
@@ -94,13 +90,9 @@ int SLInsert(SortedListPtr list, void *newObj, char* filename)
 	int compare;
 	NodePtr newo;
 	SortedListIteratorPtr it;
-	//fileNPtr f =(fileNPtr)malloc(sizeof(struct fileNode));
 	SortedListPtr flist;
 
 	newo = NULL;
-	//f->fileName = filename;
-	//f->wordCount = 1;
-
 	it = SLCreateIterator(list);
 	if (it == NULL){
 		SLDestroyIterator(it);
@@ -134,8 +126,8 @@ int SLInsert(SortedListPtr list, void *newObj, char* filename)
 			flist = it->curr->fileList;
 			FileInsert(flist,filename);
 			
-			//free(((wordNPtr)newObj)->wordName);
-			//free(newObj);		/*---- Word in list already, free new word node */
+
+			free(newObj);		/*---- Word in list already, free new word node */
 			SLDestroyIterator(it);
 			return 1;				
 		}
@@ -168,10 +160,11 @@ int FileInsert(SortedListPtr list, void *newObj)
 		return 0;
 	}
 
-	if (it->prev == NULL || (*list->funct)(newObj, it->curr->object) < 0) /*if the iterator's previous is NULL or if the new object is greater than the iterator*/
+	if (it->prev == NULL)// || (*list->funct)(newObj, it->curr->object) < 0) /*if the iterator's previous is NULL or if the new object is greater than the iterator*/
 	{
 		newo = NodeCreate(newObj,it->curr);
 		newo->count = 1;
+		newo->fileList=NULL;
 		newo->next = it->curr;
 		list->head = newo;
 		SLDestroyIterator(it);
@@ -183,15 +176,14 @@ int FileInsert(SortedListPtr list, void *newObj)
 		{
 			(it->curr->count)++;
 			if(strcmp(it->prev->object,it->curr->object) == 0){
-				tempNode = list->head;
-				list->head = list->head->next;
+				free(newObj);
+				SLDestroyIterator(it);
+				return 1;
 			}else{
 				tempNode = it->curr;
 				it->prev->next = it->curr->next;
 			}
-			//free(((fileNPtr)newObj)->fileName);
-			//free(newObj);
-			//free(tempNode);
+			free(newObj);
 			
 			ReInsert(list, tempNode);
 			SLDestroyIterator(it);
@@ -200,7 +192,8 @@ int FileInsert(SortedListPtr list, void *newObj)
 		it = SLNextItem(it);
 	}
 	it->prev->next = NodeCreate(newObj,it->curr); /*------------smallest; put the new node on the end*/
-	it->prev->next->count++;
+	it->prev->next->count=1;
+	it->prev->next->fileList=NULL;
 	SLDestroyIterator(it);
 	return 1;
 }
@@ -219,8 +212,6 @@ int ReInsert(SortedListPtr list, NodePtr newObj)
 	}
 	if (it->prev == NULL || (newObj->count)-(it->curr->count) >= 0) /*--- (n1-n2) , insert DESENDING*/
 	{
-		//newo = NodeCreate(newObj,it->curr);
-		//newo->next = it->curr;
 		newObj->next = list->head;
 		list->head = newObj;
 		SLDestroyIterator(it);

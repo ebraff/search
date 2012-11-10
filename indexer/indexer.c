@@ -61,7 +61,7 @@ int walkDir(char* name){ /*---------------------------------take in SL also*/
 	}
 
 	if(S_ISDIR(statbuf.st_mode)){
-		printf("TEST: %s\n ",name);
+
 		dr =opendir(name);
 		if(!dr){
 			printf("Cannot open Directory %s\n",name);
@@ -83,7 +83,7 @@ int walkDir(char* name){ /*---------------------------------take in SL also*/
 		closedir(dr);
 	}
 	else if(S_ISREG(statbuf.st_mode)){
-			/*printf("FileName: %s\n", name);*/
+			printf("FileName: %s\n", name);
 			/*Tokenize and add words to list*/
 			tk = run(name);
 			token = TKGetNextToken(tk);
@@ -91,15 +91,13 @@ int walkDir(char* name){ /*---------------------------------take in SL also*/
 			while(token!= NULL) {
 				word = (char*)malloc(strlen(token)+1); /*--- word */
 				strcpy(word,token);
-				//wNode = (wordNPtr)malloc(sizeof(struct wordNode));
-				//wNode->wordName = temp;
 				file = (char*)malloc(strlen(name)+1);	/*---- fileName */
 				strcpy(file,name);
 				SLInsert(globalList, word, file);
 				free(token);
 				token = TKGetNextToken(tk);
 			}
-			free(tk);
+			TKDestroy(tk);
 	}
 
 	return 1;
@@ -130,6 +128,7 @@ int main(int argc, char** argv)
 
 	globalList = SLCreate(compareWords);
 	walkDir(path);
+	free(path);
 	curr = globalList->head;
 	output = fopen(argv[1],"a+"); /*append file (add text to a file or create a file if it does not exist.*/
 
@@ -145,15 +144,11 @@ int main(int argc, char** argv)
 				
 				temp=flist;
 				flist = flist->next;
-				
-				//free(file->fileName);
-				//free(file);
-				//free(temp);
+
 				}
 			fprintf(output, "</list>\n");
 			curr = curr->next;
-			
-			//free(word->wordName);		
+	
 		}
 	fclose(output);
 	SLDestroy(globalList);
