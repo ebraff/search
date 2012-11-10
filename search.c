@@ -11,34 +11,12 @@
 
 int compareWords(void* word1, void * word2)
 {
-	int i;
-	
+	int i;	
 	char *s1, *s2;
 	s1 =(char*)word1;
 	s2 = (char*)word2;
 	i =strcmp(s1, s2);
 	return i;
-
-}
-
-/*int compareOcc(void* num1, void*  num2)
-{
-	int n1 = *(int*)num1;
-	int n2 = *(int*)num2;
-	return n1 - n2;
-
-}*/
-
-int compareFiles(void* word1, void * word2)
-{
-	int i;
-
-	char *s1, *s2;
-	s1 = word1;
-	s2 = word2;	
-	i =strcmp(s1, s2);
-	return i;
-
 }
 
 /*sa -- AND function for search*/
@@ -76,7 +54,7 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 		{
 			if(final->head == NULL)
 			{
-				return final;
+				return NULL;
 			}
 			else
 			{
@@ -166,7 +144,6 @@ int main(int argc, char **argv)
 		printf("Invalid number of arguments! Please enter a file name to read.");
 		return -1;
 		}
-	
 	len = 0;
 	answer = NULL;
 	input = fopen(argv[1],"r");
@@ -179,9 +156,8 @@ int main(int argc, char **argv)
 		fprintf(stderr,"Malloc Fail");
 		return -1;
 	}
-	
+
 	loadTable(wordTable, input, tableLen);
-	
 
 	/*-----SEARCH MENU-----*/
 	
@@ -230,7 +206,6 @@ int main(int argc, char **argv)
 		{
 			printf("Error: Not a search command.\n");
 		}
-
 	}while(1);
 
 	if(searchWords){

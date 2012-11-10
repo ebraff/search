@@ -39,8 +39,6 @@ SortedListPtr SLCreate(CompareFuncT cf)
  */
 void SLDestroy(SortedListPtr list)
 {
-	/*FREE FILENPTR?*/
-
 	NodePtr temp;
 	temp = list->head;
 	/*free everything!!!*/
@@ -146,17 +144,17 @@ int SLRemove(SortedListPtr list, void *newObj)
 	SortedListIteratorPtr it;
 
 	it = SLCreateIterator(list);
+	compare = (*list->funct)(newObj, it->curr->object);
 	if (it == NULL){
 		SLDestroyIterator(it);
 		return 0;
 	}
 
-	if (it->prev == NULL) /*------------------------if the iterator's previous is NULL, don't do anything*/
+	if (it->prev == NULL || compare < 0) /*------------------------if the iterator's previous is NULL, don't do anything*/
 	{
 		SLDestroyIterator(it);
 		return 1;
 	}
-	compare = (*list->funct)(newObj, it->curr->object);	
 	if(compare == 0) /*-----------------------------if the first node in the list is the target*/
 	{
 		if(it->curr->next == NULL) /*---------------if that node was the only one in the list*/
@@ -177,13 +175,13 @@ int SLRemove(SortedListPtr list, void *newObj)
 	}
 	while(it->curr != NULL){ /*---------------------loop to move iterator*/
 		compare = (*list->funct)(newObj, it->curr->object);		
-		if(compare <0) /*---------------------------if the iterator is less than the new object, insert it*/
+		if(compare <0) /*---------------------------if the new object is less than the iterator, insert it*/
 		{
 			printf("Could not find object in list.\n");
 			SLDestroyIterator(it);
 			return 1;
 		}
-		else if(compare > 0) /*---------------------if the iterator is greater than the new object, move the iterator to the next node(s)*/
+		else if(compare > 0) /*---------------------if the iterator is less than the new object, move the iterator to the next node(s)*/
 		{
 			it = SLNextItem(it);
 		}
@@ -201,7 +199,7 @@ int SLRemove(SortedListPtr list, void *newObj)
 		}
 	}
 	if (it->curr != NULL){
-		it->prev->next = it->curr->next; /*---------delete the smallest*/
+		it->prev->next = it->curr->next; /*---------delete the largest*/
 		free(it->curr->object);
 		free(it->curr);
 	}
@@ -304,20 +302,20 @@ void loadTable(SortedListPtr* table, FILE* input, long tl){
 	while(ret!=-1){
 		word = strndup(line+7,ret-8);  /*---- get word */
 
-		//insert word node
+		/*insert word node*/
 		index = hash(word, tl);			/*----- get hash index */
 
 		if(table[index] == NULL){
 			table[index] = SLCreate(compareWords);
 		}
 		currWord=SLInsert(table[index], (void*)word);
-		currWord->fileList=SLCreate(compareFiles);
+		currWord->fileList=SLCreate(compareWords);
 		ret = getline(&line, &len, input);
 		
 		while(line[0]!='<'){
 			end = strrchr(line, ' ');
 			file = strndup(line,ret-strlen(end)+1);
-			//insert file node
+			/*insert file node*/
 			currFile=SLInsert(currWord->fileList, (void*)file);
 			currFile->fileList=NULL;
 			ret = getline(&line, &len, input);
