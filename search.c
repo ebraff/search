@@ -1,14 +1,13 @@
 /* 
  * search.c
  */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include "sfunc.h"
 
-
+/*string compare function for sorted list*/
 int compareWords(void* word1, void * word2)
 {
 	int i;	
@@ -27,25 +26,25 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 	NodePtr wordNode, fileNode;
 	char **wordPtr, *currentWord, *fileName;
 
-
 	it1 = NULL, it2 = NULL;
 	wordPtr = &searchWords;
 	wordNode=NULL;
 	final=NULL;
 	currentWord = strtok_r(searchWords, " \n",wordPtr);	
 	while(wordNode==NULL && currentWord!=NULL){
-		wordNode = getNode(table, currentWord, tl);
-		if(!wordNode){
+		wordNode = getNode(table, currentWord, tl); /*------------------get the node inside of the hash table*/
+		if(!wordNode)
+		{
 			printf("Cannot find word: %s\n", currentWord);
 		}
-		currentWord = strtok_r(searchWords, " \n",wordPtr);
+		currentWord = strtok_r(searchWords, " \n",wordPtr);/*-----------get the next word*/
 	}
 	
 	if (wordNode != NULL)
 	{
 		final = SLCreate(compareWords);
 		it0 = SLCreateIterator(wordNode->fileList);
-		while (it0->curr != NULL)
+		while (it0->curr != NULL) /*------------------------------------put all of the file names from the first word into the final list*/
 		{
 			fileName= strdup((char*)it0->curr->object);
 			fileNode=SLInsert(final, (void*)fileName);
@@ -60,28 +59,28 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 			{
 				it1 = SLCreateIterator(final);
 				it2 = SLCreateIterator(wordNode->fileList);
-				while(it1->curr != NULL || it2->curr !=NULL)
+				while(it1->curr != NULL || it2->curr !=NULL) /*-while either list is not NULL*/
 				{
-					if (!final->head || it1->curr == NULL)
+					if (!final->head || it1->curr == NULL)/*we've reached the end of the final list*/
 					{
 						break;
 					}
-					if (it2->curr == NULL)
+					if (it2->curr == NULL)/*----------------we've reached the end of the current word's list*/
 					{
 						it1 = SLNextItem(it1);
 						SLRemove(final, it1->prev->object);
 					}
-					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) == 0)
+					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) == 0) /*the two current files are equal*/
 					{
 						it1 = SLNextItem(it1);
 						it2 = SLNextItem(it2);
 					}
-					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) < 0)
+					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) < 0) /*the current word's iterator hit a file that is greater than the final list's iterator*/
 					{
 						it1 = SLNextItem(it1);
 						SLRemove(final, it1->prev->object);
 					}
-					else
+					else /*---------------------------------it1 < it2 ; word in final list less than current word*/
 					{
 						it2 = SLNextItem(it2);
 					}
@@ -91,15 +90,14 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 			{
 				printf("Cannot find word: %s\n", currentWord);
 			}
-			currentWord = strtok_r(searchWords, " \n",wordPtr);
+			currentWord = strtok_r(searchWords, " \n",wordPtr);/*---get the next word*/
 		}
-
 		SLDestroyIterator(it1);
-		SLDestroyIterator(it2);
-		
+		SLDestroyIterator(it2);		
 		return final;
 	}
-	else{
+	else
+	{
 		return NULL;
 	}
 }
@@ -112,25 +110,24 @@ SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 	NodePtr wordNode, fileNode;
 	char **wordPtr, *currentWord, *fileName;
 
-
 	it1 = NULL, it2 = NULL;
 	wordPtr = &searchWords;
 	wordNode=NULL;
 	final=NULL;
 	currentWord = strtok_r(searchWords, " \n",wordPtr);	
 	while(wordNode==NULL && currentWord!=NULL){
-		wordNode = getNode(table, currentWord, tl);
+		wordNode = getNode(table, currentWord, tl); /*------------------get the node inside of the hash table*/
 		if(!wordNode){
 			printf("Cannot find word: %s\n", currentWord);
 		}
-		currentWord = strtok_r(searchWords, " \n",wordPtr);
+		currentWord = strtok_r(searchWords, " \n",wordPtr);/*-----------get the next word*/
 	}
 	
 	if (wordNode != NULL)
 	{
 		final = SLCreate(compareWords);
 		it0 = SLCreateIterator(wordNode->fileList);
-		while (it0->curr != NULL)
+		while (it0->curr != NULL) /*------------------------------------put all of the file names from the first word into the final list*/
 		{
 			fileName= strdup((char*)it0->curr->object);
 			fileNode=SLInsert(final, (void*)fileName);
@@ -145,33 +142,28 @@ SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 			{
 				it1 = SLCreateIterator(final);
 				it2 = SLCreateIterator(wordNode->fileList);
-				while(it2->curr !=NULL )
+				while(it2->curr !=NULL)/*-----------------------while the current word's file list is not NULL*/
 				{
-					if (!final->head || it1->curr == NULL)
+					if (!final->head || it1->curr == NULL)/*we've reached the end of the final list*/
 					{
 						fileName= strdup((char*)it2->curr->object);
 						fileNode=SLInsert(final, (void*)fileName);
 						fileNode->fileList=NULL;
 						it2 = SLNextItem(it2);
 					}
-					/*if (it2->curr == NULL)
-					{
-						it1 = SLNextItem(it1);
-						SLRemove(final, it1->prev->object);
-					}*/
-					 else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) == 0)
+					 else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) == 0) /*the two current files are equal*/
 					{
 						it1 = SLNextItem(it1);
 						it2 = SLNextItem(it2);
 					}
-					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) > 0)
+					else if (strcmp(((char*)it1->curr->object),((char*)it2->curr->object)) > 0) /*the current word's iterator hit a file that is greater than the final list's iterator*/
 					{
 						fileName= strdup((char*)it2->curr->object);
 						fileNode=SLInsert(final, (void*)fileName);
 						fileNode->fileList=NULL;
 						it2 = SLNextItem(it2);
 					}
-					else  /*--- it1 < it2 ; word in final list less than current word*/
+					else /*---------------------------------it1 < it2 ; word in final list less than current word*/
 					{
 						it1 = SLNextItem(it1);
 					}
@@ -183,16 +175,14 @@ SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 			}
 			currentWord = strtok_r(searchWords, " \n",wordPtr);
 		}
-
 		SLDestroyIterator(it1);
-		SLDestroyIterator(it2);
-		
+		SLDestroyIterator(it2);		
 		return final;
 	}
-	else{
+	else
+	{
 		return NULL;
-	}
-	
+	}	
 }
 
 int main(int argc, char **argv)
@@ -230,20 +220,24 @@ int main(int argc, char **argv)
 
 	/*-----SEARCH MENU-----*/
 	
-	do{	
+	do
+	{	
 		printf("search> ");
 		scanf("%s", searchType);
-		
-		if(strcmp(searchType, "q") == 0){
+		if(strcmp(searchType, "q") == 0) /*-----------told to quit*/
+		{
 			break;
 		}
-		if(getc(stdin)=='\n'){
+		if (strcmp(searchType, "sa") != 0 && strcmp(searchType, "so") !=0)
+		{
+			printf("Error: Not a search command.\n");
+		}			
+		if(getc(stdin)=='\n'){ /*---------------------second word is just a new line*/
 			printf("No words entered!\n");
 			continue;
 		}
 		ret = getline(&searchWords, &len, stdin);
-
-		searchWords[strlen(searchWords)-1]='\0'; /*-- remove \n from input */
+		searchWords[strlen(searchWords)-1]='\0'; /*---remove \n from input */
 		if (ret <2){
 			printf("No words entered!\n");
 			continue;
@@ -254,9 +248,11 @@ int main(int argc, char **argv)
 		if(strcmp(searchType, "sa") == 0)
 		{
 			answer = sand(wordTable, tableLen, searchWords);
-			if(answer && answer->head){
+			/*print the results*/
+			if(answer && answer->head)
+			{
 				it = SLCreateIterator(answer);
-				while (it->curr != NULL)
+				while (it->curr != NULL) 
 				{
 					printf("%s\n", (char*)it->curr->object);
 					it = SLNextItem(it);
@@ -277,9 +273,11 @@ int main(int argc, char **argv)
 		else if (strcmp(searchType, "so") == 0)
 		{
 			answer = sor(wordTable, tableLen, searchWords);
-			if(answer && answer->head){
+			/*print the results*/
+			if(answer && answer->head)
+			{
 				it = SLCreateIterator(answer);
-				while (it->curr != NULL)
+				while (it->curr != NULL) 
 				{
 					printf("%s\n", (char*)it->curr->object);
 					it = SLNextItem(it);
@@ -290,17 +288,17 @@ int main(int argc, char **argv)
 			else{
 				printf("Your search returned no files!\n");
 			}
+			if (answer){
+				SLDestroy(answer);
+			}
 		}
-		else
-		{
-			printf("Error: Not a search command.\n");
-		}
-	}while(1);
 
-	if(searchWords){
+	} while(1);
+
+	if(searchWords)
+	{
 		free(searchWords);
-	}
-	
+	}	
 	DestroyTable(wordTable,tableLen);
 	free(searchType);
 	fclose(input);
