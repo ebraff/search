@@ -264,7 +264,7 @@ int main(int argc, char **argv)
 				printf("Your search returned no files!\n");
 			}
 			if (answer){
-				SLDestroy(answer);
+				SLDestroy(answer);				
 			}
 		}
 
@@ -282,8 +282,7 @@ int main(int argc, char **argv)
 					printf("%s\n", (char*)it->curr->object);
 					it = SLNextItem(it);
 				}
-			SLDestroyIterator(it);
-			SLDestroy(answer);
+				SLDestroyIterator(it);
 			}
 			else{
 				printf("Your search returned no files!\n");
