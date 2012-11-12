@@ -17,6 +17,5 @@ sorted-list.o: sorted-list.c sorted-list.h
 
 tokenizer.o: tokenizer.c tokenizer.h
 	$(CC) $(CFLAGS) -c tokenizer.c
-
 clean:
 	rm -rf *.o search indexer

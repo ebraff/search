@@ -1,23 +1,10 @@
 /*
- * sorted-list.c
+ * sfunc.c
  */
-
 #include	<string.h>
 #include	<stdio.h>
 #include	"sfunc.h"
 #include	"search.h"
-
-
-/*
- * SLCreate creates a new, empty sorted list.  The caller must provide
- * a comparator function that can be used to order objects that will be
- * kept in the list.
- * 
- * If the function succeeds, it returns a (non-NULL) SortedListT object.
- * Else, it returns NULL.
- *
- * You need to fill in this function as part of your implementation.
- */
 
 SortedListPtr SLCreate(CompareFuncT cf)
 {
@@ -30,13 +17,6 @@ SortedListPtr SLCreate(CompareFuncT cf)
 	return list;
 }
 
-/*
- * SLDestroy destroys a list, freeing all dynamically allocated memory.
- * Objects should NOT be deallocated, however.  That is the responsibility
- * of the user of the list.
- *
- * You need to fill in this function as part of your implementation.
- */
 void SLDestroy(SortedListPtr list)
 {
 	NodePtr temp;
@@ -53,11 +33,11 @@ void SLDestroy(SortedListPtr list)
 		list->head = temp;
 	}
 	free(list);
-
 }
 
-/*Added on to initialize struct Node given the object and 
- * the pointer to the next node in the list*/
+/* Added on to initialize struct Node given the object and 
+ * the pointer to the next node in the list
+ */
 NodePtr NodeCreate(void* object, NodePtr next)
 {
 	NodePtr newo;
@@ -72,16 +52,6 @@ NodePtr NodeCreate(void* object, NodePtr next)
 	newo->next = next;
 	return newo;
 }
-
-/*
- * SLInsert inserts a given object into a sorted list, maintaining sorted
- * order of all objects in the list.  If the new object is already in the list,
- * return a small error and do not insert it again.
- *
- * If the function succeeds, it returns 1.  Else, it returns 0.
- *
- * You need to fill in this function as part of your implementation.
- */
 
 NodePtr SLInsert(SortedListPtr list, void *newObj)
 {
@@ -127,17 +97,6 @@ NodePtr SLInsert(SortedListPtr list, void *newObj)
 	SLDestroyIterator(it);
 	return newo;
 }
-
-
-/*
- * SLRemove removes a given object from a sorted list.  Sorted ordering
- * should be maintained.
- *
- * If the function succeeds, it returns 1.  Else, it returns 0.
- *
- * You need to fill in this function as part of your implementation.
- */
-
 int SLRemove(SortedListPtr list, void *newObj)
 {
 	int compare;
@@ -211,17 +170,6 @@ int SLRemove(SortedListPtr list, void *newObj)
 	return 1;
 }
 
-
-/*
- * SLCreateIterator creates an iterator object that will allow the caller
- * to "walk" through the list from beginning to the end using SLNextItem.
- *
- * If the function succeeds, it returns a non-NULL SortedListIterT object.
- * Else, it returns NULL.
- *
- * You need to fill in this function as part of your implementation.
- */
-
 SortedListIteratorPtr SLCreateIterator(SortedListPtr list)
 {
 	SortedListIteratorPtr it = (SortedListIteratorPtr)malloc(sizeof(struct SortedListIterator));
@@ -232,37 +180,10 @@ SortedListIteratorPtr SLCreateIterator(SortedListPtr list)
 	return it;
 }
 
-
-
-/*
- * SLDestroyIterator destroys an iterator object that was created using
- * SLCreateIterator().  Note that this function should destroy the
- * iterator but should NOT affectt the original list used to create
- * the iterator in any way.
- *
- * You need to fill in this function as part of your implementation.
- */
-
 void SLDestroyIterator(SortedListIteratorPtr iter)
 {
 	free(iter);
 }
-
-
-/*
- * SLNextItem returns the next object in the list encapsulated by the
- * given iterator.  It should return a NULL when the end of the list
- * has been reached.
- *
- * One complication you MUST consider/address is what happens if a
- * sorted list encapsulated within an iterator is modified while that
- * iterator is active.  For example, what if an iterator is "pointing"
- * to some object in the list as the next one to be returned but that
- * object is removed from the list using SLRemove() before SLNextItem()
- * is called.
- *
- * You need to fill in this function as part of your implementation.
- */
 
 void *SLNextItem(SortedListIteratorPtr iter)
 {
@@ -271,8 +192,10 @@ void *SLNextItem(SortedListIteratorPtr iter)
 		return iter;
 }
 
-
-unsigned long hash(char* word, long tl){ /*------returns hash index*/
+/* hash returns hash index given a word and 
+ * the length of the table
+ */
+unsigned long hash(char* word, long tl){ 
 	
 	unsigned long hash = 5381;
 	int i;
@@ -285,6 +208,9 @@ unsigned long hash(char* word, long tl){ /*------returns hash index*/
 	
 }
 
+/* loadTable creates a hash table (type SortedListPtr*)
+ * Given FILE* created by indexer program and table length
+ */
 void loadTable(SortedListPtr* table, FILE* input, long tl){
 	int ret,i;
 	unsigned long index;
@@ -300,10 +226,10 @@ void loadTable(SortedListPtr* table, FILE* input, long tl){
 	ret = getline(&line, &len, input);
 	
 	while(ret!=-1){
-		word = strndup(line+7,ret-8);  /*---- get word */
+		word = strndup(line+7,ret-8); /*-------get word */
 
 		/*insert word node*/
-		index = hash(word, tl);			/*----- get hash index */
+		index = hash(word, tl);/*--------------get hash index */
 
 		if(table[index] == NULL){
 			table[index] = SLCreate(compareWords);
@@ -347,8 +273,8 @@ NodePtr getNode(SortedListPtr* table, char* word, long tl){
 	SortedListIteratorPtr it;
 	int compare;
 	
-	/*get table number*/
-	pos = hash(word, tl);
+	it=NULL;		
+	pos = hash(word, tl); /*get table number*/
 	if(table[pos])
 	{
 		it = SLCreateIterator(table[pos]);
@@ -362,8 +288,8 @@ NodePtr getNode(SortedListPtr* table, char* word, long tl){
 		SLDestroyIterator(it);
 		return NULL;
 	}
-	/*get next in table[i]*/
 	
+	/*get next node in table[i] (a SortedListPtr)*/	
 	while(it->curr != NULL)
 	{
 		compare = (table[pos]->funct)(word, it->curr->object);

@@ -1,0 +1,19 @@
+<list> cat
+pages/boo.txt 2
+</list>
+<list> dog
+pages/roof.txt 4
+pages/ruff.txt 4
+</list>
+<list> mouse
+pages/boo.txt 9
+pages/roof.txt 4
+</list>
+<list> zoo
+pages/boo.txt 9
+pages/roof.txt 4
+</list>
+<list> talk
+grow/test.txt 3552
+zoom.txt 1111111
+</list>
