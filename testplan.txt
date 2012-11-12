@@ -48,4 +48,4 @@ Input				Result
 				Your search returned no files!
 ----------------------------------------------------------------------------------------------
 
-With larger data sets, 
+With larger data sets search functions perform correctly and all malloced memory is free'd.
