@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 	answer = NULL;
 	input = fopen(argv[1],"r");
 	if(!input){
-		printf("Error opening file!!");
+		printf("Error opening file!!\n");
 		return -1;
 	}
 	searchType = (char*)malloc(10);
