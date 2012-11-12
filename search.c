@@ -232,6 +232,9 @@ int main(int argc, char **argv)
 		if (strcmp(searchType, "sa") != 0 && strcmp(searchType, "so") !=0)
 		{
 			printf("Error: Not a search command.\n");
+			while (getc(stdin) != '\n') {
+        		/* do nothing */
+   			 }
 			continue;
 		}			
 		if(getc(stdin)=='\n'){ /*---------------------second word is just a new line*/
