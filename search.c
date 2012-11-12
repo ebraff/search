@@ -39,7 +39,7 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 		}
 		currentWord = strtok_r(searchWords, " \n",wordPtr);/*-----------get the next word*/
 	}
-	
+
 	if (wordNode != NULL)
 	{
 		final = SLCreate(compareWords);
@@ -56,7 +56,7 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 		{
 			wordNode = getNode(table, currentWord, tl);
 			if (wordNode != NULL)
-			{
+			{	
 				it1 = SLCreateIterator(final);
 				it2 = SLCreateIterator(wordNode->fileList);
 				while(it1->curr != NULL || it2->curr !=NULL) /*-while either list is not NULL*/
@@ -91,9 +91,10 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 				printf("Cannot find word: %s\n", currentWord);
 			}
 			currentWord = strtok_r(searchWords, " \n",wordPtr);/*---get the next word*/
+			SLDestroyIterator(it1);
+			SLDestroyIterator(it2);	
 		}
-		SLDestroyIterator(it1);
-		SLDestroyIterator(it2);		
+
 		return final;
 	}
 	else
@@ -122,7 +123,7 @@ SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 		}
 		currentWord = strtok_r(searchWords, " \n",wordPtr);/*-----------get the next word*/
 	}
-	
+
 	if (wordNode != NULL)
 	{
 		final = SLCreate(compareWords);
@@ -173,10 +174,10 @@ SortedListPtr sor(SortedListPtr* table, long tl, char *searchWords)
 			{
 				printf("Cannot find word: %s\n", currentWord);
 			}
+			SLDestroyIterator(it1);
+			SLDestroyIterator(it2);
 			currentWord = strtok_r(searchWords, " \n",wordPtr);
-		}
-		SLDestroyIterator(it1);
-		SLDestroyIterator(it2);		
+		}		
 		return final;
 	}
 	else
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
 	char *searchType, *searchWords;
 	SortedListIteratorPtr it;
 	SortedListPtr *wordTable, answer;
-	
+
 	if (argc < 2){
 		printf("Invalid number of arguments! Please enter a file name to read.");
 		return -1;
@@ -210,7 +211,7 @@ int main(int argc, char **argv)
 	searchWords = NULL;
 	tableLen = 797;	
 	wordTable = (SortedListPtr*)malloc(sizeof(SortedListPtr)*tableLen);
-	
+
 	if(wordTable==NULL){
 		fprintf(stderr,"Malloc Fail");
 		return -1;
@@ -219,7 +220,6 @@ int main(int argc, char **argv)
 	loadTable(wordTable, input, tableLen);
 
 	/*-----SEARCH MENU-----*/
-	
 	do
 	{	
 		printf("search> ");
@@ -231,6 +231,7 @@ int main(int argc, char **argv)
 		if (strcmp(searchType, "sa") != 0 && strcmp(searchType, "so") !=0)
 		{
 			printf("Error: Not a search command.\n");
+			continue;
 		}			
 		if(getc(stdin)=='\n'){ /*---------------------second word is just a new line*/
 			printf("No words entered!\n");
@@ -242,55 +243,33 @@ int main(int argc, char **argv)
 			printf("No words entered!\n");
 			continue;
 		}
-		
-/*--------Search AND---------*/
 
-		if(strcmp(searchType, "sa") == 0)
+		if(strcmp(searchType, "sa") == 0) /*---------search and*/
 		{
 			answer = sand(wordTable, tableLen, searchWords);
-			/*print the results*/
-			if(answer && answer->head)
-			{
-				it = SLCreateIterator(answer);
-				while (it->curr != NULL) 
-				{
-					printf("%s\n", (char*)it->curr->object);
-					it = SLNextItem(it);
-				}
-				SLDestroyIterator(it);
-			}
-			else
-			{
-				printf("Your search returned no files!\n");
-			}
-			if (answer){
-				SLDestroy(answer);				
-			}
 		}
-
-/*--------Search OR---------*/
-
-		else if (strcmp(searchType, "so") == 0)
+		else if (strcmp(searchType, "so") == 0)/*----search or*/
 		{
 			answer = sor(wordTable, tableLen, searchWords);
-			/*print the results*/
-			if(answer && answer->head)
-			{
-				it = SLCreateIterator(answer);
-				while (it->curr != NULL) 
-				{
-					printf("%s\n", (char*)it->curr->object);
-					it = SLNextItem(it);
-				}
-				SLDestroyIterator(it);
-			}
-			else{
-				printf("Your search returned no files!\n");
-			}
-			if (answer){
-				SLDestroy(answer);
-			}
 		}
+		/*print the results*/
+		if(answer && answer->head)
+		{
+			it = SLCreateIterator(answer);
+			while (it->curr != NULL) 
+			{
+				printf("%s\n", (char*)it->curr->object);
+				it = SLNextItem(it);
+			}
+			SLDestroyIterator(it);
+		}
+		else
+		{
+			printf("Your search returned no files!\n");
+		}
+		if (answer){
+			SLDestroy(answer);				
+		}		
 
 	} while(1);
 
@@ -301,7 +280,6 @@ int main(int argc, char **argv)
 	DestroyTable(wordTable,tableLen);
 	free(searchType);
 	fclose(input);
-	
+
 	return 0;
 }
-
