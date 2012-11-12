@@ -94,7 +94,6 @@ SortedListPtr sand(SortedListPtr* table, long tl, char *searchWords)
 			SLDestroyIterator(it1);
 			SLDestroyIterator(it2);	
 		}
-
 		return final;
 	}
 	else
