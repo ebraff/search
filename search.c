@@ -237,6 +237,10 @@ int main(int argc, char **argv)
 		if(strcmp(searchType, "q") == 0){
 			break;
 		}
+		if (strcmp(searchType, "sa") != 0 && strcmp(searchType, "so") !=0)
+		{
+			printf("Error: Not a search command.\n");
+		}
 		if(getc(stdin)=='\n'){
 			printf("No words entered!\n");
 			continue;
@@ -262,6 +266,7 @@ int main(int argc, char **argv)
 					it = SLNextItem(it);
 				}
 				SLDestroyIterator(it);
+				it=NULL;
 			}
 			else
 			{
@@ -269,6 +274,7 @@ int main(int argc, char **argv)
 			}
 			if (answer){
 				SLDestroy(answer);
+				answer=NULL;
 			}
 		}
 
@@ -285,20 +291,32 @@ int main(int argc, char **argv)
 					it = SLNextItem(it);
 				}
 			SLDestroyIterator(it);
-			SLDestroy(answer);
+			it=NULL;
 			}
 			else{
 				printf("Your search returned no files!\n");
+			}
+			if (answer){
+				SLDestroy(answer);
+				answer=NULL;
 			}
 		}
 		else
 		{
 			printf("Error: Not a search command.\n");
 		}
+		
+		
 	}while(1);
 
 	if(searchWords){
 		free(searchWords);
+	}
+	if (answer){
+		SLDestroy(answer);
+	}
+	if(it){
+		SLDestroyIterator(it);
 	}
 	
 	DestroyTable(wordTable,tableLen);
